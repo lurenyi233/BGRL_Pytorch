@@ -56,9 +56,9 @@ def parse_args():
     parser.add_argument("--name", "-n",type=str, default="WikiCS",
                         help="Name of the dataset. Supported names are: cora, citeseer, pubmed, photo, computers, cs, and physics")
     parser.add_argument("--layers", "-l", nargs="+", default=[
-                        512, 256], help="The number of units of each layer of the GNN. Default is [512, 128]")
+                        64, 32], help="The number of units of each layer of the GNN. Default is [512, 128]")
     parser.add_argument("--pred_hid", '-ph', type=int,
-                        default=512, help="The number of hidden units of layer of the predictor. Default is 512")
+                        default=64, help="The number of hidden units of layer of the predictor. Default is 512")
     parser.add_argument("--init-parts", "-ip", type=int, default=1,
                         help="The number of initial partitions. Default is 1. Applicable for ClusterSelfGNN")
     parser.add_argument("--final-parts", "-fp", type=int, default=1,

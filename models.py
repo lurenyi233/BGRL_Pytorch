@@ -13,7 +13,7 @@ The following code is borrowed from BYOL, SelfGNN
 and slightly modified for BGRL
 """
 
-
+# 计算指数移动平均（Exponential Moving Average，EMA）
 class EMA:
     def __init__(self, beta, epochs):
         super().__init__()
@@ -28,19 +28,19 @@ class EMA:
         self.step += 1
         return old * beta + (1 - beta) * new
 
-
+# 衡量两个向量之间的余弦相似度
 def loss_fn(x, y):
     x = F.normalize(x, dim=-1, p=2)
     y = F.normalize(y, dim=-1, p=2)
     return 2 - 2 * (x * y).sum(dim=-1)
 
-
+# 用指数移动平均 (EMA) 更新两个模型的参数
 def update_moving_average(ema_updater, ma_model, current_model):
     for current_params, ma_params in zip(current_model.parameters(), ma_model.parameters()):
         old_weight, up_weight = ma_params.data, current_params.data
         ma_params.data = ema_updater.update_average(old_weight, up_weight)
 
-
+# 是否计算梯度
 def set_requires_grad(model, val):
     for p in model.parameters():
         p.requires_grad = val
@@ -67,7 +67,9 @@ class Encoder(nn.Module):
 
         return x
 
-
+# 这是一个用于初始化神经网络模型权重的函数。
+# 函数通过遍历模型的每个模块（m），如果模块是线性层（nn.Linear），
+# 则使用 Xavier（也称为Glorot）初始化方法初始化权重，并将偏置项初始化为常数值。
 def init_weights(m):
     if type(m) == nn.Linear:
         torch.nn.init.xavier_uniform_(m.weight)
@@ -79,7 +81,7 @@ class BGRL(nn.Module):
     def __init__(self, layer_config, pred_hid, dropout=0.0, moving_average_decay=0.99, epochs=1000, **kwargs):
         super().__init__()
         self.student_encoder = Encoder(layer_config=layer_config, dropout=dropout, **kwargs)
-        self.teacher_encoder = copy.deepcopy(self.student_encoder)
+        self.teacher_encoder = copy.deepcopy(self.student_encoder)  # 深度拷贝，以确保两者是相互独立的对象。
         set_requires_grad(self.teacher_encoder, False)
         self.teacher_ema_updater = EMA(moving_average_decay, epochs)
         rep_dim = layer_config[-1]
